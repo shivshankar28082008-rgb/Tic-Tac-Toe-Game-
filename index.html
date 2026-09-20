@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe Game</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #101827, #1f2937);
+      color: #fff;
+      padding: 20px;
+    }
+    .game {
+      width: min(100%, 430px);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      backdrop-filter: blur(12px);
+    }
+    h1 { margin: 0 0 8px; font-size: 2rem; }
+    .subtitle { margin: 0 0 20px; color: #cbd5e1; }
+    .status {
+      margin: 16px 0 20px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.08);
+      font-weight: 700;
+    }
+    .board {
+      width: min(100%, 330px);
+      aspect-ratio: 1;
+      margin: 0 auto 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .cell {
+      border: none;
+      border-radius: 16px;
+      background: #f8fafc;
+      color: #111827;
+      font-size: clamp(2.2rem, 10vw, 4rem);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s, background .15s;
+    }
+    .cell:hover:not(:disabled) { transform: scale(1.03); background: #e2e8f0; }
+    .cell:disabled { cursor: default; }
+    .cell.x { color: #2563eb; }
+    .cell.o { color: #dc2626; }
+    .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    button.control {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #fff;
+      color: #111827;
+    }
+    .info { margin-top: 18px; font-size: .9rem; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>🎮 Tic-Tac-Toe</h1>
+    <p class="subtitle">Two Player Game</p>
+    <div class="status" id="status">Player X's Turn</div>
+    <div class="board" id="board" aria-label="Tic-Tac-Toe board"></div>
+    <div class="actions">
+      <button class="control" id="restart">🔄 New Game</button>
+    </div>
+    <div class="info">Project: Tic-Tac-Toe Game using C Programming concepts</div>
+  </main>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const restartBtn = document.getElementById('restart');
+
+    let board, currentPlayer, gameOver;
+
+    function resetGame() {
+      board = Array(9).fill('');
+      currentPlayer = 'X';
+      gameOver = false;
+      render();
+      updateStatus();
+    }
+
+    function render() {
+      boardEl.innerHTML = '';
+      board.forEach((value, index) => {
+        const cell = document.createElement('button');
+        cell.className = 'cell';
+        cell.textContent = value;
+        if (value) cell.classList.add(value.toLowerCase());
+        cell.disabled = Boolean(value) || gameOver;
+        cell.setAttribute('aria-label', value ? 'Position ' + (index + 1) + ': ' + value : 'Position ' + (index + 1));
+        cell.addEventListener('click', () => makeMove(index));
+        boardEl.appendChild(cell);
+      });
+    }
+
+    function makeMove(index) {
+      if (board[index] || gameOver) return;
+      board[index] = currentPlayer;
+      if (hasWinner(currentPlayer)) {
+        gameOver = true;
+        statusEl.textContent = '🎉 Player ' + currentPlayer + ' Wins!';
+      } else if (board.every(Boolean)) {
+        gameOver = true;
+        statusEl.textContent = '🤝 Game Draw!';
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        updateStatus();
+      }
+      render();
+    }
+
+    function updateStatus() {
+      if (!gameOver) statusEl.textContent = "Player " + currentPlayer + "'s Turn";
+    }
+
+    function hasWinner(player) {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return wins.some(line => line.every(i => board[i] === player));
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+    resetGame();
+  </script>
+</body>
+</html>
